@@ -28,3 +28,31 @@ Outside of work, I explore data through various personal projects that incorpora
 * Review & Q&A (8 min)  
 
 * Closing 
+
+## Introduction to R
+
+{{< video src="https://www.youtube.com/watch?v=wIft-t-MQuE" width="100%" height="80%" >}}
+
+## Getting Started with R
+
+R is a statistical programming language that's incredibly powerful for working with data. Unlike Python which is built around _objects_, R is based on _functions_. For our purposes, that means we'll be calling functions (like F(x)=Y) to transform our data rather than attaching properties to objects. 
+
+## Packages
+
+Most of the work we'll do relies on packages, which are basically toolkits. To use one, you will first need to install it with a base R function `install.packages()`: 
+
+```{r}
+#| echo: true
+#| eval: false
+install.packages("package_name")
+```
+
+After installing a package, you can load it into your current session with `library()`:
+
+```{r}
+#| echo: true
+#| eval: false
+library("package_name")
+```
+
+

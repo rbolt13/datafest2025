@@ -1,0 +1,16 @@
+---
+title: "Title"
+subtitle: "subtitle"
+author: "[Randi Bolt](https://www.randibolt.com/)"
+date: "9/25/2025"
+format:
+  revealjs:
+    theme: sky
+    logo: img/bolt.png
+    footer: "2025-datafest.app"
+    incremental: true 
+---
+
+## Agenda
+
+This is a test... 

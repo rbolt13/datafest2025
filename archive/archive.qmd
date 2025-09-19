@@ -1,0 +1,236 @@
+---
+title: "2025 Data Fest"
+subtitle: "Introduction to Text Mining and Topic Modeling in R"
+author: "[Randi Bolt](https://randibolt.com/)"
+date: "9/25/2025"
+format:
+  revealjs:
+    theme: sky
+    logo: img/bolt.png
+    footer: "2025-datafest.app"
+    incremental: true 
+---
+
+## About Me
+
+I’m the Data Equity and Innovation Supervisor for [Paid Leave Oregon](https://paidleave.oregon.gov/), where I lead a team of data analysts in transforming complex data into insights with Tableau and R.
+
+Outside of work, I explore data through various personal projects that incorporate analytics, visualization, and storytelling. Check out my blogs, dashboards, and talks to see more.
+
+## Agenda
+
+* R & Taylor Swift Data (5 min)  
+
+* Text Mining & `tidytext` (10 min)  
+
+* Topic Modeling (15 min)  
+
+* Review & Q&A (8 min)  
+
+* Closing 
+
+## Introduction to R
+
+{{< video src="https://www.youtube.com/watch?v=wIft-t-MQuE" width="100%" height="80%" >}}
+
+## Getting Started with R 
+
+R is a statistical programming language that's incredibly powerful for working with data. Unlike Python which is built around _objects_, R is based on _functions_. For our purposes, that means we'll be calling functions (like F(x)=Y) to transform our data rather than attaching properties to objects. 
+
+## Packages 
+
+Most of the work we'll do relies on packages, which are basically toolkits. To use one, you will first need to install it with a base R function `install.packages()`: 
+
+
+```{r}
+#| echo: true
+#| eval: false
+install.packages("package_name")
+```
+
+After installing a package, you can load it into your current session with `library()`:
+
+```{r}
+#| echo: true
+#| eval: false
+library("package_name")
+```
+
+## Tips
+
+When in doubt about what a functions does, or what is in a package, you can type `?function_name()` or `?package_name` in the R Studio console to open the description page in the Help tab. 
+
+(add image of what that looks like)
+
+## Data Manipulation & Visualization Packages 
+
+* **dplyr**: to manipulate data. 
+
+* **tidyr**: functions to allow conversions of text to tidy formats. 
+
+* **ggplot2**: creates flexible, high quality plots
+
+* **reactable**: creates HTML widgets for data tables. 
+
+## 
+
+### Install Packages
+
+```{r}
+#| echo: true
+#| eval: false
+install.packages("dplyr")
+install.packages("tidyr")
+install.package("ggplot2")
+install.packages("reactable")
+```
+
+### Load Packages
+
+```{r}
+install.packages("dplyr", repos="http://cran.us.r-project.org")
+```
+
+
+```{r}
+#| echo: true
+#| eval: false
+library("dplyr")
+library("tidyr")
+library("ggplot2")
+library("reactable")
+```
+
+## Taylor Swift Data
+
+{{< video src="https://www.youtube.com/watch?v=e-ORhEE9VVg" width="100%" height="80%" >}}
+
+## Taylor Package
+
+The Taylor package is a comprehensive resource for data on Taylor Swift songs. Data comes from 'Genius' (lyrics) and 'Spotify' (song characteristics). 
+
+**Useful links**: [taylor](https://taylor.wjakethompson.com/), [taylor repo](https://github.com/wjakethompson/taylor)
+
+### Install & Load Data
+
+```{r}
+#| warning: false
+#| error: false
+install.packages("taylor", repos="http://cran.us.r-project.org")
+library("taylor")
+```
+
+```{r}
+#| echo: true
+#| eval: false
+install.packages("taylor")
+library("taylor")
+```
+
+
+## Taylor Data
+
+There are three main data sets: `taylor_album_songs`
+
+```{r}
+#| echo: true
+head(taylor_album_songs)
+```
+
+## View Data 
+
+coming soon ... 
+
+## Clean Data 
+
+coming soon ... 
+
+## EDA
+
+coming soon ... 
+
+## Text Mining & Tidy Text 
+
+{{< video src="https://www.youtube.com/watch?v=b1kbLwvqugk" width="100%" height="80%" >}}
+
+## Key Definitions
+
+These definitions might feel elementary at first, but that's the point. The more clearly you understand these simple ideas, the easier it will be to make sense of the more complex modeling steps later. 
+
+* **Word**: a single word, and smallest unit of analysis.
+
+* **Text**: the written content inside a document (the lyrics of a single song). 
+
+* **Document**: a unit of text (a single song). 
+
+* **Corpus**: the full collection of texts (all song lyrics). 
+
+## Key Definitions Continued
+
+* **Vocabulary**: the unique set of words across all documents in a set. 
+
+* **N-grams**: sequence of words (1 = unigram, 2 = bigram, 3 = trigram), we we can use to look for corpus themes. 
+
+* **Covariates**: document attributes (ablum, dancibility, key)
+
+## Tidytext
+
+introduce package, install, and load 
+
+## Tokenize 
+
+content coming soon ... 
+
+## Remove stop words
+
+content coming soon ... 
+
+## Sentiment analysis
+
+content coming soon ...
+
+## EDA (with word clouds)
+
+content coming soon ... 
+
+## Topic Modeling 
+
+{{< video src="https://www.youtube.com/watch?v=sRxrwjOtIag" width="100%" height="80%" >}}
+
+## Key Definitions
+
+After exploring the top unigrams, bigrams, trigrams, we can already see patterns around .... Before fitting our model we will want to pick the number of topic appropriate for this corpus. Again we will start with some definitions around metrics, and then use visuals to select a reasonable K. 
+
+* **K**: the number of latent themes the model will learn, where each topic is a probability distribution over the words. Higher K can capture more nuance but risks redundancy and noise. 
+
+## Key Definitions Continued
+
+* **Exclusivity**: is how unique a topic's top words are to that topic. Higher exclusivity means the words are more distinct, but topics can aslo get more fragmented. This often trades off with coherence. 
+
+* **Semantic Coherence**: is how frequent a topic's top words co-occur within a document, and tell us how closely related topics are. This tends to decrease as K grows and topics get thinner. 
+
+* **Held-Out**: predicts the fit on held out words or unseen data. Higher is better, and you to look for when k levels out (the elbow). 
+
+* **Residuals**: this shows the unexplained variance, and is the difference between predicted and actual values. High residuals suggests missing topics or vocabulary issues. This usually drops fast with K, and then should flatten out. 
+
+## Main things to consider when making a selection
+
+1. Where does held-out mostly plateau?
+
+2. Where do residuals start to flatten out? 
+
+3. Where are exclusivity and coherence both reasonable? 
+
+## Load STM Package
+
+about... 
+
+## Evaluate K 
+
+code ... 
+
+## Continued
+
+some visuals... 
+
+

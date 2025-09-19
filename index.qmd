@@ -23,6 +23,11 @@ Outside of work, I explore data through various personal projects that incorpora
 
 * Introduction to R & R Studio
 
+* Taylor Data
+
+* Text Mining
+
+* Sentiment Analysis
 
 ## Introduction to R & R Studio 
 
@@ -66,6 +71,8 @@ R Studio provides a more user-friendly interface, incorporating the R Console, a
 * Landscape (Console, help, viewer, environment, files)
 
 * Global Options 
+
+* R Syntax
 
 ## Packages 
 

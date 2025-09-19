@@ -11,6 +11,7 @@ format:
     incremental: true 
 ---
 
+
 ## About Me
 
 I’m the Data Equity and Innovation Supervisor for **[Paid Leave Oregon](https://paidleave.oregon.gov/)**, where I lead a team of data analysts in transforming complex data into actionable insights.
@@ -26,7 +27,10 @@ Outside of work, I explore data through various personal projects that incorpora
 
 ## Introduction to R & R Studio 
 
+
 {{< video src="https://www.youtube.com/watch?v=wIft-t-MQuE" width="100%" height="80%" >}}
+
+
 
 ## What is R
 
@@ -72,19 +76,23 @@ R Studio provides a more user-friendly interface, incorporating the R Console, a
 Most of the work we'll do relies on packages, which are basically toolkits. To use one, you will first need to install it with a base R function `install.packages()`: 
 
 
+
 ```{r}
 #| echo: true
 #| eval: false
 install.packages("package_name")
 ```
 
+
 After installing a package, you can load it into your current session with `library()`:
+
 
 ```{r}
 #| echo: true
 #| eval: false
 library("package_name")
 ```
+
 
 ## Tips
 
@@ -96,7 +104,10 @@ CRAN is the Comprehensive R Archive Network. It’s where R packages are stored,
 
 ## Taylor Swift Data
 
+
 {{< video src="https://www.youtube.com/watch?v=e-ORhEE9VVg" width="100%" height="80%" >}}
+
+
 
 ## Taylor Package
 
@@ -106,6 +117,7 @@ The Taylor package is a comprehensive resource for data on Taylor Swift songs. D
 
 
 ### Install & Load Data
+
 
 ```{r}
 #| warning: false
@@ -121,18 +133,22 @@ install.packages("taylor")
 library("taylor")
 ```
 
+
 ## Taylor Data
 
 There are three main data sets: `taylor_album_songs`
+
 
 ```{r}
 #| echo: true
 head(taylor_album_songs)
 ```
 
+
 ## Reactable
 
 This package creates a data table with sorting and pagination. The default table is an HTML widget that can be used in RMD and Shiny applications, or viewed from an R console. 
+
 
 ```{r}
 #| warning: false
@@ -148,7 +164,9 @@ install.packages("reactable")
 library("reactable")
 ```
 
+
 ## Reactable Taylor Data
+
 
 ```{r}
 #| echo: true
@@ -158,3 +176,4 @@ reactable(
   defaultPageSize = 4,
   defaultColDef = colDef(minWidth = 300))
 ```
+

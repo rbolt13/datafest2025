@@ -231,8 +231,25 @@ for (i in 1:nrow(taylor_all_songs)) {
   test <- test[test$element_artist == "Taylor Swift", ]
   Data$lyrics[i] <- paste(unlist(test$lyric), collapse = " ")
 }
+```
 
-Data_no_tv <- subset(Data, !grepl("\\(Taylor's Version\\)|\\[Taylor's Version\\]|\\(Acoustic Version\\)|\\(Pop Version\\)|\\(Piano Version\\)|\\(Remix\\)", track, ignore.case = TRUE))
+## Remove Taylor's Versions
+
+(text ...)
+
+```{r}
+#| echo: true
+Data_no_tv <- subset(
+  Data, 
+  !grepl(
+    "\\(Taylor's Version\\)
+    |\\[Taylor's Version\\]
+    |\\(Acoustic Version\\)
+    |\\(Pop Version\\)
+    |\\(Piano Version\\)
+    |\\(Remix\\)", 
+    track, 
+    ignore.case = TRUE))
 
 Data_with_tv <- Data
 Data <- Data_no_tv
@@ -247,15 +264,26 @@ Data <- Data_no_tv
 #| eval: false
 install.packages("dplyr")
 install.packages("tidytext")
+install.packages("tidyr")
 library(dplyr)
 library(tidytext)
+library(tidyr)
 data("stop_words")
+song_words <- c(
+  "ooh", "di", "eh", "ah", "la", "ha",
+  "da", "uh", "huh", "whoa")
 ```
 
 ```{r}
 library(dplyr)
 library(tidytext)
+library(tidyr)
 data("stop_words")
+song_words <- data.frame(
+  word = c(
+    "ooh", "di", "eh", "ah", 
+    "la", "ha", "da", "uh", 
+    "huh", "whoa", "mm"))
 ```
 
 ## Unigram
@@ -269,7 +297,8 @@ data("stop_words")
 unigram <- Data |>
   mutate(lyrics = tolower(lyrics)) |>
   unnest_tokens(word, lyrics, token = "words") |>
-  anti_join(stop_words)
+  anti_join(stop_words) |>
+  anti_join(song_words)
 ```
 
 ```{r}
@@ -297,7 +326,7 @@ library(ggplot2)
 #| eval: false
 unigram |>
   count(word, sort = TRUE) |>
-  filter(n > 60) |>
+  filter(n > 100) |>
   mutate(word = reorder(word, n)) |>
   ggplot(aes(n, word)) +
   geom_col() +
@@ -309,16 +338,95 @@ unigram |>
 ```{r}
 unigram %>%
   count(word, sort = TRUE) |>
-  filter(n > 60) |>
+  filter(n > 100) |>
   mutate(word = reorder(word, n)) |>
   ggplot(aes(n, word)) +
   geom_col() +
   labs(y = NULL) 
 ```
 
-## Bigram
+## Bigram (Code)
 
-(Coming soon...)
+```{r}
+bigram <- Data |>
+  select(doc, lyrics) |>
+  mutate(lyrics = tolower(lyrics)) |>
+  unnest_tokens(bigram, 
+                lyrics, 
+                token = "ngrams", 
+                n = 2) |>
+  separate(
+    col = bigram,
+    sep = " ",
+    into = c("w1", "w2"),
+    remove = FALSE
+  ) |>
+  filter(!w1 %in% stop_words$word) |>
+  filter(!w2 %in% stop_words$word) |>
+  filter(!w1 %in% song_words$word) |>
+  filter(!w2 %in% song_words$word)
+```
 
+```{r}
+#| echo: true
+#| eval: false
+bigram <- Data |>
+  select(doc, lyrics) |>
+  mutate(lyrics = tolower(lyrics)) |>
+  unnest_tokens(
+    bigram, 
+    lyrics, 
+    token = "ngrams", 
+    n = 2) |>
+  separate(
+    col = bigram,
+    sep = " ",
+    into = c("w1", "w2"),
+    remove = FALSE
+  ) |>
+  filter(!w1 %in% stop_words$word) |>
+  filter(!w2 %in% stop_words$word) |>
+  filter(!w1 %in% song_words$word) |>
+  filter(!w2 %in% song_words$word)
+```
 
+## Bigram (Table)
+
+```{r}
+reactable(
+  bigram,
+  wrap = FALSE,
+  defaultPageSize = 4,
+  defaultColDef = colDef(minWidth = 300))
+```
+
+## Most Common Bigram (Code)
+
+```{r}
+#| echo: true
+#| eval: false
+bigram |>
+  count(bigram, sort = TRUE) |>
+  filter(n > 13) |>
+  mutate(bigram = reorder(bigram, n)) |>
+  ggplot(aes(n, bigram)) +
+  geom_col() +
+  labs(y = NULL)
+```
+
+## Most Common Bigram (Graph)
+
+```{r}
+bigram |>
+  count(bigram, sort = TRUE) |>
+  filter(n > 13) |>
+  mutate(bigram = reorder(bigram, n)) |>
+  ggplot(aes(n, bigram)) +
+  geom_col() +
+  labs(y = NULL)
+```
+
+## Sentiment Analysis 
+
+(coming soon...)
 

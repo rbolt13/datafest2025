@@ -7,7 +7,7 @@ format:
   revealjs:
     theme: serif
     logo: img/bolt.png
-    footer: "2025-datafest.netlify.app"
+    footer: "[2025-datafest.netlify.app](https://2025-datafest.netlify.app/#/title-slide)"
     incremental: true 
 ---
 

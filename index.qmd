@@ -213,7 +213,7 @@ These definitions might feel elementary at first, but that's the point. The more
 
 * **Stop Words**: Stop words are common words (like the, and, is, in, at, on) that usually don’t add much meaning for text analysis.
 
-* **Sentiment**: Sentiment refers to the emotional tone or attitude expressed in text—typically categorized as positive, negative, or neutral.
+* **Sentiment**: Sentiment refers to the emotional tone or attitude expressed in text.
 
 ## Create Data 
 
@@ -429,4 +429,73 @@ bigram |>
 ## Sentiment Analysis 
 
 {{< video src="https://youtu.be/K-a8s8OLBSE?si=YKbF1sMcnuTm_7Mj" width="100%" height="80%" >}}
+
+## Sentiment Dictionaries
+
+The tidytext package provides access to several sentiment lexicons. 
+
+```{r}
+#| warning: false
+#| error: false
+install.packages("tidytext", repos="http://cran.us.r-project.org")
+library("tidytext")
+```
+
+```{r}
+#| echo: true
+#| eval: false
+install.packages("tidytext")
+library("tidytext")
+```
+
+
+```{r}
+# install.packages("textdata", repos="http://cran.us.r-project.org")
+# library("textdata")
+```
+
+There are three general-purpose lexicons are included wiht tidytext. We will be using two. 
+
+## Lixicons - Bing
+
+**[bing](https://search.r-project.org/CRAN/refmans/textdata/html/lexicon_bing.html)**: the words are assigned scores for positive/negative sentiment. 
+
+```{r}
+#| echo: true
+#| eval: false
+get_sentiments("bing")
+```
+
+```{r}
+get_sentiments("bing")
+```
+
+
+## Lexicons - Afinn
+
+**[afinn](https://search.r-project.org/CRAN/refmans/oolong/html/afinn.html)**: assigns words with a score that runs between -5 and 5, with negative scores indicating negative sentiment and positive scores indicating positive sentiment.
+
+```{r}
+#| echo: true
+#| eval: false
+# get_sentiments("afinn")
+```
+
+```{r}
+# get_sentiments("afinn")
+```
+
+## Important Note
+
+These dictionaries were constructed via either crowdsourcing (using, for example, Amazon Mechanical Turk) or by the labor of one of the authors, and were validated using some combination of crowdsourcing again, restaurant or movie reviews, or Twitter data. Given this information, we may hesitate to apply these sentiment lexicons to styles of text dramatically different from what they were validated on. [^2]
+
+[^2]: [Text Mining with R - Sentiment analysis with tidy data](https://www.tidytextmining.com/sentiment#the-sentiments-datasets)
+
+
+## Join Unigram 
+
+```{r}
+
+```
+
 

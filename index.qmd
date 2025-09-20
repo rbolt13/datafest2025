@@ -428,5 +428,5 @@ bigram |>
 
 ## Sentiment Analysis 
 
-(coming soon...)
+{{< video src="https://youtu.be/K-a8s8OLBSE?si=YKbF1sMcnuTm_7Mj" width="100%" height="80%" >}}
 

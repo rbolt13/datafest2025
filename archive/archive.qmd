@@ -193,6 +193,8 @@ content coming soon ...
 
 content coming soon ... 
 
+* **Covariates**: document attributes (ablum, dancibility, key)
+
 ## Topic Modeling 
 
 {{< video src="https://www.youtube.com/watch?v=sRxrwjOtIag" width="100%" height="80%" >}}

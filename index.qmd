@@ -478,11 +478,11 @@ get_sentiments("bing")
 ```{r}
 #| echo: true
 #| eval: false
-# get_sentiments("afinn")
+get_sentiments("afinn")
 ```
 
 ```{r}
-# get_sentiments("afinn")
+get_sentiments("afinn")
 ```
 
 ## Important Note
@@ -492,10 +492,69 @@ These dictionaries were constructed via either crowdsourcing (using, for example
 [^2]: [Text Mining with R - Sentiment analysis with tidy data](https://www.tidytextmining.com/sentiment#the-sentiments-datasets)
 
 
-## Join Unigram 
+## Tidy Albums
 
 ```{r}
+# tidy_albums <- Data |>
+#   group_by(album) |>
+#   mutate(
+#     track = row_number() 
+#   ) |>
+#   ungroup() |>
+#   unnest_tokens(word, text)
+```
+## Cont.. 
 
+
+(Cont)
+
+* over time by albumn
+
+## Bing Join
+
+```{r}
+bing_word_counts <- unigram |>
+  inner_join(get_sentiments("bing")) |>
+  count(word, sentiment, sort = TRUE) |>
+  ungroup()
 ```
 
+## Top + and - Words
+
+
+```{r}
+bing_word_counts %>%
+  group_by(sentiment) %>%
+  slice_max(n, n = 10) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(x = "Contribution to sentiment",
+       y = NULL)
+```
+
+## Word cloud
+
+```{r}
+library(wordcloud)
+library(RColorBrewer)
+
+unigram %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  reshape2::acast(word ~ sentiment, value.var = "n", fill = 0) %>%
+  comparison.cloud(colors = c("gray20", "gray80"),
+                   max.words = 100)
+```
+
+## Review
+
+(things to revieq)
+
+
+## Conclusion 
+
+Good bye thanks
 

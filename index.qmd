@@ -58,11 +58,11 @@ Unlike Python which is built around _objects_, R is based on _functions_. For ou
 
 ## What is R Studio 
 
-R Stuido is an **I**ntegrated **D**evelopment **E**nvironment (IDE), similar to VS Code or Sublime. 
+R Studio is an **I**ntegrated **D**evelopment **E**nvironment (IDE), similar to VS Code or Sublime. 
 
 <br>
 
-R Studio provides a more user-friendly interface, incorporating the R Console, a script editor and other useful functionality (like R markdown and GitHub integration). You can find more information about [RStudio here](). [^2]
+R Studio provides a more user-friendly interface, incorporating the R Console, a script editor and other useful functionality (like R markdown and GitHub integration). You can find more information about [RStudio here]().[^2]
 
 [^2]: [Intro to R](https://intro2r.com/chap1.html)
 

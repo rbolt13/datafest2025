@@ -2,7 +2,7 @@
 title: "2025 Data Fest"
 subtitle: "Introduction to R, Text Mining, and Sentiment Analysis"
 author: "[Randi Bolt](https://randibolt.com/)"
-date: "9/25/2025"
+date: "9/23/2025"
 format:
   revealjs:
     theme: serif
@@ -10,6 +10,16 @@ format:
     footer: "[2025-datafest.netlify.app](https://2025-datafest.netlify.app/#/title-slide)"
     incremental: true 
 ---
+
+## What to Expect
+
+* This session is recorded
+
+* Recording + notes will be shared afterward
+
+* Follow along as best you can
+
+* Questions are welcome anytime
 
 ## About Me
 
@@ -100,6 +110,14 @@ CRAN is the Comprehensive R Archive Network. It’s where R packages are stored,
 * Global Options 
 
 * R Syntax
+
+## Review Questions
+
+1. How do you find documentation on a package or function? 
+
+2. How do you find the version of R you are currently using? 
+
+3. What is the assignment operator? 
 
 ## Taylor Swift Data
 

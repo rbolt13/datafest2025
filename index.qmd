@@ -66,14 +66,6 @@ R Studio provides a more user-friendly interface, incorporating the R Console, a
 
 [^2]: [Intro to R](https://intro2r.com/chap1.html)
 
-## Live Demo
-
-* Landscape (Console, help, viewer, environment, files)
-
-* Global Options 
-
-* R Syntax
-
 ## Packages 
 
 Most of the work we'll do relies on packages, which are basically toolkits. To use one, you will first need to install it with a base R function `install.packages()`: 
@@ -100,6 +92,14 @@ When in doubt about what a functions does, or what is in a package, you can type
 ## CRAN
 
 CRAN is the Comprehensive R Archive Network. It’s where R packages are stored, tested, and shared with the community. If you install a package in R, you’re usually pulling it from CRAN.
+
+## Live Demo
+
+* Landscape (Console, help, viewer, environment, files)
+
+* Global Options 
+
+* R Syntax
 
 ## Taylor Swift Data
 
@@ -503,12 +503,11 @@ These dictionaries were constructed via either crowdsourcing (using, for example
 #   ungroup() |>
 #   unnest_tokens(word, text)
 ```
-## Cont.. 
-
+## Sentiment Trajectory for each ablum
 
 (Cont)
 
-* over time by albumn
+* sentiment over time by albumn
 
 ## Bing Join
 
@@ -519,7 +518,7 @@ bing_word_counts <- unigram |>
   ungroup()
 ```
 
-## Top + and - Words
+## Most Common +/- Songs
 
 
 ```{r}
@@ -535,7 +534,25 @@ bing_word_counts %>%
        y = NULL)
 ```
 
-## Word cloud
+## Word Cloud (code)
+
+(add info about)
+
+```{r}
+#| echo: true
+#| eval: false
+library(wordcloud)
+library(RColorBrewer)
+
+unigram %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  reshape2::acast(word ~ sentiment, value.var = "n", fill = 0) %>%
+  comparison.cloud(colors = c("gray20", "gray80"),
+                   max.words = 100)
+```
+
+## Word Cloud (graph)
 
 ```{r}
 library(wordcloud)
@@ -549,12 +566,15 @@ unigram %>%
                    max.words = 100)
 ```
 
+## Negation 
+
+(add info)
+
 ## Review
 
-(things to revieq)
 
 
-## Conclusion 
+## Conclusion & Resources
 
 Good bye thanks
 

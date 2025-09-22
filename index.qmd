@@ -11,16 +11,6 @@ format:
     incremental: true 
 ---
 
-## What to Expect
-
-* This session is recorded
-
-* Recording + notes will be shared afterward
-
-* Follow along as best you can
-
-* Questions are welcome anytime
-
 ## About Me
 
 I’m the Data Equity and Innovation Supervisor for **[Paid Leave Oregon](https://paidleave.oregon.gov/)**, where I lead a team of data analysts in transforming complex data into actionable insights.

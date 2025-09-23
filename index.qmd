@@ -320,6 +320,7 @@ Data <- lapply(1:nrow(taylor_album_songs), function(i) {
     doc         = i,
     track       = song$track_name,
     album       = song$album_name,
+    track       = song$track_number,
     line_number = seq_len(nrow(lines)),
     lyrics       = lines$lyric
   )
@@ -465,6 +466,9 @@ Since we are not able to derive much insight from that initial analysis, lets tr
 ```{r}
 #| echo: true
 unigram <- Data |>
+  select(
+    album, track, track.1, 
+    doc, line_number, lyrics) |>
   unnest_tokens(word, lyrics, token = "words") |>
   anti_join(stop_words) |>
   anti_join(song_words)
@@ -692,7 +696,7 @@ library("tidytext")
 # library("textdata")
 ```
 
-There are three general-purpose lexicons are included wiht tidytext. We will be using two. 
+There are three general-purpose lexicons that are included with tidytext. We will be using two. 
 
 ## Lixicons - Bing
 
@@ -701,10 +705,11 @@ There are three general-purpose lexicons are included wiht tidytext. We will be 
 ```{r}
 #| echo: true
 #| eval: false
-get_sentiments("bing")
+bing <- get_sentiments("bing")
 ```
 
 ```{r}
+bing <- get_sentiments("bing")
 get_sentiments("bing")
 ```
 
@@ -716,50 +721,64 @@ get_sentiments("bing")
 ```{r}
 #| echo: true
 #| eval: false
-get_sentiments("afinn")
+afinn <- get_sentiments("afinn")
 ```
 
 ```{r}
+afinn <- get_sentiments("afinn")
 get_sentiments("afinn")
 ```
 
 ## Important Note
 
-These dictionaries were constructed via either crowdsourcing (using, for example, Amazon Mechanical Turk) or by the labor of one of the authors, and were validated using some combination of crowdsourcing again, restaurant or movie reviews, or Twitter data. Given this information, we may hesitate to apply these sentiment lexicons to styles of text dramatically different from what they were validated on. [^2]
+These dictionaries were constructed via either crowdsourcing (using, for example, Amazon Mechanical Turk) or by the labor of one of the authors, and were validated using some combination of crowdsourcing again, restaurant or movie reviews, or Twitter data. Given this information, we may hesitate to apply these sentiment lexicons to styles of text dramatically different from what they were validated on. [^3]
 
-[^2]: [Text Mining with R - Sentiment analysis with tidy data](https://www.tidytextmining.com/sentiment#the-sentiments-datasets)
+[^3]: [Text Mining with R - Sentiment analysis with tidy data](https://www.tidytextmining.com/sentiment#the-sentiments-datasets)
 
 
 ## Tidy Albums
 
 ```{r}
-# tidy_albums <- Data |>
-#   group_by(album) |>
-#   mutate(
-#     track = row_number() 
-#   ) |>
-#   ungroup() |>
-#   unnest_tokens(word, text)
+#| echo: true
+#| eval: false
+song_sent <- unigram |>
+  inner_join(afinn, by = "word") |>
+  group_by(album, track.1) |>
+  summarise(score = mean(value), .groups = "drop") |>
+  arrange(album, track.1)
+
+ggplot(song_sent, aes(track.1, score)) +
+  geom_col() +
+  facet_wrap(~ album, scales = "free_x") +
+  labs(y = NULL)
 ```
-## Sentiment Trajectory for each ablum
 
-(Cont)
+## Album Sentiments Overtime
 
-* sentiment over time by albumn
+```{r}
+song_sent <- unigram |>
+  inner_join(afinn, by = "word") |>
+  group_by(album, track.1) |>
+  summarise(score = mean(value), .groups = "drop") |>
+  arrange(album, track.1)
+
+ggplot(song_sent, aes(track.1, score)) +
+  geom_col() +
+  facet_wrap(~ album, scales = "free_x") +
+  labs(y = NULL)
+```
+
 
 ## Bing Join
 
 ```{r}
+#| echo: true
+#| eval: false
 bing_word_counts <- unigram |>
   inner_join(get_sentiments("bing")) |>
   count(word, sentiment, sort = TRUE) |>
   ungroup()
-```
 
-## Most Common +/- Songs
-
-
-```{r}
 bing_word_counts %>%
   group_by(sentiment) %>%
   slice_max(n, n = 10) %>%
@@ -768,51 +787,200 @@ bing_word_counts %>%
   ggplot(aes(n, word, fill = sentiment)) +
   geom_col(show.legend = FALSE) +
   facet_wrap(~sentiment, scales = "free_y") +
-  labs(x = "Contribution to sentiment",
-       y = NULL)
+  labs(y = NULL)
 ```
 
-## Word Cloud (code)
-
-(add info about)
+## Most Common +/- Lyrics
 
 ```{r}
-#| echo: true
-#| eval: false
-library(wordcloud)
-library(RColorBrewer)
+bing_word_counts <- unigram |>
+  inner_join(get_sentiments("bing")) |>
+  count(word, sentiment, sort = TRUE) |>
+  ungroup()
 
-unigram %>%
-  inner_join(get_sentiments("bing")) %>%
-  count(word, sentiment, sort = TRUE) %>%
-  reshape2::acast(word ~ sentiment, value.var = "n", fill = 0) %>%
-  comparison.cloud(colors = c("gray20", "gray80"),
-                   max.words = 100)
+bing_word_counts |>
+  group_by(sentiment) |>
+  slice_max(n, n = 10) |>
+  ungroup() |>
+  mutate(word = reorder(word, n)) |>
+  ggplot(aes(n, word, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(y = NULL)
 ```
 
-## Word Cloud (graph)
+## Most Common +/- Bigrams
 
 ```{r}
-library(wordcloud)
-library(RColorBrewer)
-
-unigram %>%
-  inner_join(get_sentiments("bing")) %>%
-  count(word, sentiment, sort = TRUE) %>%
-  reshape2::acast(word ~ sentiment, value.var = "n", fill = 0) %>%
-  comparison.cloud(colors = c("gray20", "gray80"),
-                   max.words = 100)
+bigram |>
+  inner_join(get_sentiments("bing"), by = c("w2" = "word")) |>
+  count(sentiment, bigram, sort = TRUE) |>
+  group_by(sentiment) |>
+  slice_max(n, n = 15, with_ties = FALSE) |>
+  ungroup() |>
+  mutate(bigram = tidytext::reorder_within(bigram, n, sentiment)) |>
+  ggplot(aes(n, bigram, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  tidytext::scale_y_reordered() +
+  facet_wrap(~ sentiment, scales = "free_y") +
+  labs(y = NULL)
 ```
 
 ## Negation 
 
-(add info)
+```{r}
+base <- Data |>
+  unnest_tokens(word, lyrics) |>
+  inner_join(bing, by = "word") |>
+  count(album, track.1, sentiment, name = "n") |>
+  pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) |>
+  mutate(net_before = positive - negative)
+
+# 2) Negated sentiment counts per track (from bigrams)
+negflip <- Data |>
+  unnest_tokens(bigram, lyrics, token = "ngrams", n = 2) |>
+  separate(bigram, c("w1","w2"), sep = " ", remove = FALSE) |>
+  inner_join(bing, by = c("w2" = "word")) |>
+  filter(w1 %in% negations$word) |>
+  count(album, track.1, sentiment, name = "k") |>
+  pivot_wider(names_from = sentiment, values_from = k, values_fill = 0, names_prefix = "neg_")
+
+# 3) Adjust per track and compute after/before
+by_track <- base |>
+  left_join(negflip, by = c("album","track.1")) |>
+  mutate(across(starts_with("neg_"), ~ replace_na(.x, 0))) |>
+  mutate(
+    pos_after = positive - neg_positive + neg_negative,
+    neg_after = negative - neg_negative + neg_positive,
+    net_after = pos_after - neg_after
+  )
+
+# 4) Album-level: track averages and the change (after - before)
+album_delta <- by_track |>
+  group_by(album) |>
+  summarise(
+    track_avg_before = mean(net_before),
+    track_avg_after  = mean(net_after),
+    delta            = track_avg_after - track_avg_before,
+    .groups = "drop"
+  )
+
+# (A) Quick “how much did it change?” bar
+ggplot(album_delta, aes(delta, album)) +
+  geom_col() +
+  labs(x = "Δ net sentiment (after - before)", y = NULL)
+
+```
+
+## Word Cloud
+
+A ackage to create word clouds and visualize frequency. 
+
+```{r}
+#| warning: false
+#| error: false
+install.packages("wordcloud", repos="http://cran.us.r-project.org")
+library("wordcloud")
+```
+
+```{r}
+#| echo: true
+#| eval: false
+install.packages("wordcloud")
+library("wordcloud")
+```
+
+## Color Brewer
+
+A set of curated color palettes (qualitative, sequential, diverging) designed for readable data viz and maps, many color-blind friendly.
+
+```{r}
+#| warning: false
+#| error: false
+install.packages("RColorBrewer", repos="http://cran.us.r-project.org")
+library("RColorBrewer")
+```
+
+```{r}
+#| echo: true
+#| eval: false
+install.packages("RColorBrewer")
+library("RColorBrewer")
+```
+
+## Reshape
+
+A legacy R package for reshaping data between wide and long formats.
+
+```{r}
+#| warning: false
+#| error: false
+install.packages("reshape", repos="http://cran.us.r-project.org")
+library("reshape")
+```
+
+```{r}
+#| echo: true
+#| eval: false
+install.packages("reshape2")
+library("reshape2")
+```
+
+## Word Cloud (Code)
+
+```{r}
+#| warning: false
+#| error: false
+#| echo: true
+#| eval: false
+unigram |>
+  inner_join(get_sentiments("bing")) |>
+  count(word, sentiment, sort = TRUE) |>
+  reshape2::acast(
+    word ~ sentiment, 
+    value.var = "n", 
+    fill = 0) |>
+  comparison.cloud(colors = c("gray20", "gray80"),
+                   max.words = 100)
+```
+
+## Word Cloud (Graph)
+
+```{r}
+library(wordcloud)
+library(RColorBrewer)
+
+unigram %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  reshape2::acast(word ~ sentiment, value.var = "n", fill = 0) %>%
+  comparison.cloud(colors = c("gray20", "gray80"),
+                   max.words = 100)
+```
 
 ## Review
 
+1. How do Bing and AFINN differ in how they score words?
 
+2. Why do we sometimes use inner_join() vs left_join() when scoring sentiment?
 
-## Conclusion & Resources
+3. When comparing albums, why normalize by length (e.g., use a rate) instead of raw counts?
 
-Good bye thanks
+4. In bigrams, why flip sentiment based on w1 matching a negation and not w2?
+
+5. When is a word cloud appropriate, and when is a bar chart better?
+
+## Resources 
+
+* [Introduction to R](https://intro2r.com/)
+
+* [R for Data Science](https://r4ds.had.co.nz/index.html)
+
+* [YaRrr! The Pirate’s Guide to R](https://bookdown.org/ndphillips/YaRrr/)
+
+* [Text Mining with R](https://www.tidytextmining.com/)
+
+* [Julia Silge's Blog](https://juliasilge.com/blog/)
+
+## Thank you!!
 

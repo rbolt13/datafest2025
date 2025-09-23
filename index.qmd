@@ -95,11 +95,17 @@ CRAN is the Comprehensive R Archive Network. It’s where R packages are stored,
 
 ## Live Demo
 
-* Landscape (Console, help, viewer, environment, files)
+* Create and load R projects
 
-* Global Options 
+* R Studio Landscape (Console, help, viewer, environment, files, packages)
 
-* R Syntax
+* Global Options (appearance & layout)
+
+* .R files, Quarto files, render code, comments
+
+* R Syntax (assignment `<-`, concatenate `c()`, extract values `[]`, extract fields `$`, sequence `:`, loops)
+
+* Plots & ggplots
 
 ## Review Questions
 
@@ -282,7 +288,8 @@ A custom list of filler or vocalization words (like ooh, ah, la) that appear in 
 song_words <- data.frame(
   word = c(
     "ooh", "di", "eh", "ah", "la", 
-    "ha","da", "uh", "huh", "whoa")
+    "ha","da", "uh", "huh", "whoa",
+    "ba", "hoo")
 )
 ```
 
@@ -304,8 +311,8 @@ negations <- data.frame(
 
 ```{r}
 #| echo: true
-Data <- lapply(1:nrow(taylor_all_songs), function(i) {
-  song  <- taylor_all_songs[i, ]
+Data <- lapply(1:nrow(taylor_album_songs), function(i) {
+  song  <- taylor_album_songs[i, ]
   lines <- song$lyrics[[1]]
 
   data.frame(
@@ -365,11 +372,94 @@ These definitions might feel elementary at first, but that's the point. The more
 
 * **Sentiment**: Sentiment refers to the emotional tone or attitude expressed in text.
 
-## Unigram
+## Unnest Tokens
 
-(add text)
+This splits a column into tokens, flattening the table into one-token-per-row. 
 
-## Unigram
+Let's start by tokenizing our data set, keeping stop words and song words. 
+
+```{r}
+#| echo: true
+unigram_all <- Data |>
+  unnest_tokens(word, lyrics, token = "words") 
+```
+
+## Review unigram_all
+
+Notice that there are 132,140 total words in our Corpus. 
+
+```{r}
+reactable(
+  unigram_all,
+  wrap = FALSE,
+  defaultPageSize = 4,
+  defaultColDef = colDef(minWidth = 300))
+```
+
+## Vocabulary (unigram_all)
+
+When we count the words we see that there are only 5,146 words in this vocabulary, with the most common words being you, I, the, and and. 
+
+```{r}
+#| echo: true
+unigram_all_vocab <- unigram_all |>
+  count(word, sort = TRUE)
+```
+
+```{r}
+reactable(
+  unigram_all_vocab,
+  wrap = FALSE,
+  defaultPageSize = 2,
+  defaultColDef = colDef(minWidth = 300))
+```
+
+
+## Ggplot
+
+To visualize the most common words in our vocabulary we are going to use the `ggplot2` package. 
+
+```{r}
+#| echo: true
+#| eval: false
+install.packages("ggplot2")
+library("ggplot2")
+```
+
+```{r}
+install.packages("ggplot2", repos="http://cran.us.r-project.org")
+library("ggplot2")
+```
+
+## Visualize Plot
+
+Then we will use the following code to visualize the most used words in our vocabulary. 
+
+```{r}
+#| echo: true
+#| eval: false
+unigram_all_vocab |>
+  filter(n > 1000) |>
+  mutate(word = reorder(word, n)) |>
+  ggplot(aes(n, word)) +
+  geom_col() +
+  labs(y = NULL)
+```
+
+## Most Used Words (all)
+
+```{r}
+unigram_all_vocab |>
+  filter(n > 1000) |>
+  mutate(word = reorder(word, n)) |>
+  ggplot(aes(n, word)) +
+  geom_col() +
+  labs(y = NULL)
+```
+
+## Removing Stop & Song Words
+
+Since we are not able to derive much insight from that initial analysis, lets try again but removing stop words and our custom song words data frames using an `anti_join`. 
 
 ```{r}
 #| echo: true
@@ -379,6 +469,8 @@ unigram <- Data |>
   anti_join(song_words)
 ```
 
+## Anti Join Unigram
+
 ```{r}
 reactable(
   unigram,
@@ -387,17 +479,8 @@ reactable(
   defaultColDef = colDef(minWidth = 300))
 ```
 
-## ggplot2
 
-(add text.. live demo)
-
-```{r}
-#| echo: true
-library(ggplot2)
-```
-
-
-## Most Common Word (code)
+## Most Common Word (Code)
 
 ```{r}
 #| echo: true
@@ -414,7 +497,7 @@ unigram |>
 ## Most Common Word (Graph)
 
 ```{r}
-unigram %>%
+unigram |>
   count(word, sort = TRUE) |>
   filter(n > 100) |>
   mutate(word = reorder(word, n)) |>
@@ -423,11 +506,43 @@ unigram %>%
   labs(y = NULL) 
 ```
 
+## Most Common Word by Album 
+
+```{r}
+#| echo: true
+#| eval: false
+unigram |> 
+  count(album, word, sort = TRUE) |>
+  group_by(album) |>
+  slice_max(n, n = 10) |>
+  mutate(word = reorder_within(word, n, album)) |>
+  ggplot(aes(n, word)) +
+  geom_col() +
+  scale_y_reordered() +
+  labs(y = NULL) +
+  facet_wrap(~ album, scales = "free_y")
+```
+
+## Most Common Word by Album 
+
+```{r}
+unigram |> 
+  count(album, word, sort = TRUE) |>
+  group_by(album) |>
+  slice_max(n, n = 10) |>
+  mutate(word = reorder_within(word, n, album)) |>
+  ggplot(aes(n, word)) +
+  geom_col() +
+  scale_y_reordered() +
+  labs(y = NULL) +
+  facet_wrap(~ album, scales = "free_y")
+```
+
 ## Bigram (Code)
 
 ```{r}
 bigram <- Data |>
-  select(doc, lyrics) |>
+  select(album, doc, lyrics) |>
   mutate(lyrics = tolower(lyrics)) |>
   unnest_tokens(bigram, 
                 lyrics, 
@@ -442,14 +557,15 @@ bigram <- Data |>
   filter(!w1 %in% stop_words$word) |>
   filter(!w2 %in% stop_words$word) |>
   filter(!w1 %in% song_words$word) |>
-  filter(!w2 %in% song_words$word)
+  filter(!w2 %in% song_words$word) |>
+  filter(!is.na(bigram))
 ```
 
 ```{r}
 #| echo: true
 #| eval: false
 bigram <- Data |>
-  select(doc, lyrics) |>
+  select(doc, album, lyrics) |>
   mutate(lyrics = tolower(lyrics)) |>
   unnest_tokens(
     bigram, 
@@ -465,7 +581,8 @@ bigram <- Data |>
   filter(!w1 %in% stop_words$word) |>
   filter(!w2 %in% stop_words$word) |>
   filter(!w1 %in% song_words$word) |>
-  filter(!w2 %in% song_words$word)
+  filter(!w2 %in% song_words$word) |>
+  filter(!is.na(bigram))
 ```
 
 ## Bigram (Table)
@@ -503,6 +620,48 @@ bigram |>
   geom_col() +
   labs(y = NULL)
 ```
+
+## Most Common Bigram by Album 
+
+```{r}
+#| echo: true
+#| eval: false
+bigram |> 
+  count(album, bigram, sort = TRUE) |>
+  group_by(album) |>
+  slice_max(n, n = 10) |>
+  mutate(word = reorder_within(bigram, n, album)) |>
+  ggplot(aes(n, word)) +
+  geom_col() +
+  scale_y_reordered() +
+  labs(y = NULL) +
+  facet_wrap(~ album, scales = "free_y")
+```
+
+## Most Common Bigram by Album 
+
+```{r}
+bigram |> 
+  count(album, bigram, sort = TRUE) |>
+  group_by(album) |>
+  slice_max(n, n = 10) |>
+  mutate(word = reorder_within(bigram, n, album)) |>
+  ggplot(aes(n, word)) +
+  geom_col() +
+  scale_y_reordered() +
+  labs(y = NULL) +
+  facet_wrap(~ album, scales = "free_y")
+```
+
+## Review
+
+1. What’s the difference between a document, text, and the corpus in this project?
+
+2. Why were stop words and song words removed?
+
+3. Your facet plot is not sorted within each album. What two helpers fix it?
+
+4.  Why does `slice_max(n, n = 10)` differ from `filter(n > 10)` after count()?
 
 ## Sentiment Analysis 
 

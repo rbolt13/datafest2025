@@ -264,6 +264,15 @@ A built-in dataset of very common words like the, and, of that usually don’t a
 data("stop_words")
 ```
 
+```{r}
+reactable(
+  stop_words,
+  wrap = FALSE,
+  defaultPageSize = 3,
+  defaultColDef = colDef(minWidth = 300))
+```
+
+
 ## Define Songs Words
 
 A custom list of filler or vocalization words (like ooh, ah, la) that appear in lyrics but don’t carry much meaning. We can filter these out so they don’t distract from the main analysis.

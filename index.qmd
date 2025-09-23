@@ -71,7 +71,7 @@ R Studio provides a more user-friendly interface, incorporating the R Console, a
 Most of the work we'll do relies on packages, which are basically toolkits. To use one, you will first need to install it with a base R function `install.packages()`: 
 
 
-```{r}
+```{r 1. install packages}
 #| echo: true
 #| eval: false
 install.packages("package_name")
@@ -103,11 +103,13 @@ CRAN is the Comprehensive R Archive Network. It’s where R packages are stored,
 
 ## Review Questions
 
-1. How do you find documentation on a package or function? 
+1. What is the difference between R and R Studio
 
-2. How do you find the version of R you are currently using? 
+2. How do you find documentation on a package or function? 
 
-3. What is the assignment operator? 
+3. How do you find the version of R you are currently using? 
+
+4. What is the assignment operator? 
 
 ## Taylor Swift Data
 
@@ -138,7 +140,15 @@ library("taylor")
 
 ## Taylor Data
 
-There are three main data sets: `taylor_album_songs`
+There are three main data sets: 
+
+* `taylor_album_songs`: which includes lyrics and audio features from the Spotify API for all songs on Taylor’s official studio albums. 
+
+* `taylor_all_songs`: Taylor’s entire discography. 
+
+* `taylor_albums`: Sumarizes Taylor’s album release history.
+
+## Taylor Album Songs
 
 ```{r}
 #| echo: true
@@ -197,6 +207,119 @@ reactable(
   defaultColDef = colDef(minWidth = 300))
 ```
 
+## Dplyr
+
+A package for working with data frames that makes it easy to filter, sort, group, and summarize data using simple, readable functions.
+
+```{r}
+install.packages("dplyr", repos="http://cran.us.r-project.org")
+library(dplyr)
+```
+
+```{r}
+#| echo: true
+#| eval: false
+install.packages("dplyr")
+library(dplyr)
+```
+
+## Tidy Text
+
+A package that helps turn text (like lyrics or survey responses) into tidy data frames, so you can analyze words, sentiments, and topics with the same tools you use for numbers.
+
+```{r}
+install.packages("tidytext", repos="http://cran.us.r-project.org")
+library(tidytext)
+```
+
+```{r}
+#| echo: true
+#| eval: false
+install.packages("tidytext")
+library(tidytext)
+```
+
+## Tidyr
+
+A package for reshaping data, used to make messy data “tidy” by separating, combining, or pivoting columns so each row is an observation and each column is a variable.
+
+```{r}
+install.packages("tidyr", repos="http://cran.us.r-project.org")
+library(tidyr)
+```
+
+```{r}
+#| echo: true
+#| eval: false
+install.packages("tidyr")
+library(tidyr)
+```
+
+## Define Stop Words
+
+A built-in dataset of very common words like the, and, of that usually don’t add much meaning. We remove these so the analysis focuses on more meaningful words.
+
+```{r}
+#| echo: true
+data("stop_words")
+```
+
+## Define Songs Words
+
+A custom list of filler or vocalization words (like ooh, ah, la) that appear in lyrics but don’t carry much meaning. We can filter these out so they don’t distract from the main analysis.
+
+```{r}
+#| echo: true
+song_words <- data.frame(
+  word = c(
+    "ooh", "di", "eh", "ah", "la", 
+    "ha","da", "uh", "huh", "whoa")
+)
+```
+
+## Define Negations
+
+A dataset of words like not, no, never, without that flip the meaning of the words around them. This is useful in sentiment analysis because “not happy” is very different from “happy.”
+
+```{r}
+#| echo: true
+negations <- data.frame(
+  word = c(
+      "not", "no", "never", "none", "nobody",
+      "nothing", "neither", "nowhere", "cannot",
+      "without", "hardly", "barely", "scarcely")
+)
+```
+
+## Define Data
+
+```{r}
+#| echo: true
+Data <- lapply(1:nrow(taylor_all_songs), function(i) {
+  song  <- taylor_all_songs[i, ]
+  lines <- song$lyrics[[1]]
+
+  data.frame(
+    doc         = i,
+    track       = song$track_name,
+    album       = song$album_name,
+    line_number = seq_len(nrow(lines)),
+    lyrics       = lines$lyric
+  )
+}) |> 
+  bind_rows()
+```
+
+## Review Questions
+
+1. What is the importance of stop words?
+
+2. Why are negations important to consider when analyzing sentiment?
+
+3. What does the doc column represent in the dataset we created from Taylor’s lyrics?
+
+4. Why might we want to keep each line of a song instead of collapsing the whole song into one string?
+
 ## Introduction to Text Mining
 
 {{< video src="https://www.youtube.com/watch?v=b1kbLwvqugk" width="100%" height="80%" >}}
@@ -223,77 +346,6 @@ These definitions might feel elementary at first, but that's the point. The more
 
 * **Sentiment**: Sentiment refers to the emotional tone or attitude expressed in text.
 
-## Create Data 
-
-```{r}
-#| echo: true
-Data <- data.frame(
-  doc = 1:nrow(taylor_all_songs),
-  track = taylor_all_songs$track_name,
-  album = taylor_all_songs$album_name, 
-  lyrics = NA_character_
-)
-
-for (i in 1:nrow(taylor_all_songs)) {
-  test <- data.frame(taylor_all_songs$lyrics[i])
-  test <- test[test$element_artist == "Taylor Swift", ]
-  Data$lyrics[i] <- paste(unlist(test$lyric), collapse = " ")
-}
-```
-
-## Remove Taylor's Versions
-
-(text ...)
-
-```{r}
-#| echo: true
-Data_no_tv <- subset(
-  Data, 
-  !grepl(
-    "\\(Taylor's Version\\)
-    |\\[Taylor's Version\\]
-    |\\(Acoustic Version\\)
-    |\\(Pop Version\\)
-    |\\(Piano Version\\)
-    |\\(Remix\\)", 
-    track, 
-    ignore.case = TRUE))
-
-Data_with_tv <- Data
-Data <- Data_no_tv
-```
-
-## Dplyr & Tidytext
-
-(add text)
-
-```{r}
-#| echo: true
-#| eval: false
-install.packages("dplyr")
-install.packages("tidytext")
-install.packages("tidyr")
-library(dplyr)
-library(tidytext)
-library(tidyr)
-data("stop_words")
-song_words <- c(
-  "ooh", "di", "eh", "ah", "la", "ha",
-  "da", "uh", "huh", "whoa")
-```
-
-```{r}
-library(dplyr)
-library(tidytext)
-library(tidyr)
-data("stop_words")
-song_words <- data.frame(
-  word = c(
-    "ooh", "di", "eh", "ah", 
-    "la", "ha", "da", "uh", 
-    "huh", "whoa", "mm"))
-```
-
 ## Unigram
 
 (add text)
@@ -303,7 +355,6 @@ song_words <- data.frame(
 ```{r}
 #| echo: true
 unigram <- Data |>
-  mutate(lyrics = tolower(lyrics)) |>
   unnest_tokens(word, lyrics, token = "words") |>
   anti_join(stop_words) |>
   anti_join(song_words)

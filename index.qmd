@@ -319,6 +319,16 @@ Data <- lapply(1:nrow(taylor_all_songs), function(i) {
   bind_rows()
 ```
 
+## Review Data
+
+```{r}
+reactable(
+  Data,
+  wrap = FALSE,
+  defaultPageSize = 4,
+  defaultColDef = colDef(minWidth = 300))
+```
+
 ## Review Questions
 
 1. What is the importance of stop words?
